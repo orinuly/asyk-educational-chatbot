@@ -12,8 +12,10 @@ class ChatGUI:
         self.master = master
         master.title("Asyk")
 
-        self.chat_display = scrolledtext.ScrolledText(master, wrap=tk.WORD, width=100, height=30)
+        self.chat_display = scrolledtext.ScrolledText(master, wrap=tk.WORD, width=150, height=35)
         self.chat_display.pack(padx=10, pady=10)
+
+        self.set_font("Helvetica", 12)
 
         self.user_input = tk.Entry(master, width=40)
         self.user_input.pack(padx=10, pady=10)
@@ -68,16 +70,22 @@ class ChatGUI:
         probs = torch.softmax(output, dim=1)
         prob = probs[0][predicted.item()]
 
-        if prob.item() > 0.75:
+        if prob.item() > 0.9:
             for intent in self.intents["intents"]:
                 if tag == intent["tag"]:
                     response = random.choice(intent["responses"])
 
+                    print(f"Tag: {tag}, Probability: {prob.item()}")
+                    print("Probabilities for all intents:", probs)
+
                     callback(response)
                     return
-        else:
-            callback("I can not give you an answer, please ask again")
-            return
+
+        print(f"Tag: {tag}, Probability: {prob.item()}")
+        print("Probabilities for all intents:", probs)
+
+        callback("I have information about Kazakh Traditional Games only or I can't understand your request.")
+        return
 
     def handle_chatbot_response(self, response):
         self.display_message(f'{self.bot_name}: {response}')
@@ -85,6 +93,10 @@ class ChatGUI:
     def display_message(self, message):
         self.chat_display.insert(tk.END, message + '\n')
         self.chat_display.see(tk.END)
+
+    def set_font(self, family, size):
+        font = (family, size)
+        self.chat_display.configure(font=font)
 
 
 if __name__ == "__main__":
